@@ -19,7 +19,7 @@ options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")  # Debug po
 driver = webdriver.Chrome(service=Service(), options=options)
 
 # Load the product data from JSON
-data_file_path = r"data.json"  # Replace with your data.json file path
+data_file_path = r"data2.json"  # Replace with your data.json file path
 with open(data_file_path, 'r') as file:
     products = json.load(file)
 
@@ -49,7 +49,23 @@ try:
         editor_body.send_keys(product["description"])
         driver.switch_to.default_content()
 
-        # Upload media
+        # # Upload media
+        # upload_button = WebDriverWait(driver, 10).until(
+        #     EC.element_to_be_clickable(
+        #         (By.XPATH, "//button[span[contains(text(), 'Upload new')]]")
+        #     )
+        # )
+        # upload_button.click()
+
+        # file_input = WebDriverWait(driver, 10).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
+        # )
+        # file_input.send_keys(product["media_path"])
+
+        # # Add a timeout after uploading the media
+        # time.sleep(10)  # Wait for 30 seconds to ensure media upload is completed
+        
+        # Upload multiple media files
         upload_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(
                 (By.XPATH, "//button[span[contains(text(), 'Upload new')]]")
@@ -57,14 +73,17 @@ try:
         )
         upload_button.click()
 
+        # Locate the file input element
         file_input = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
         )
-        file_input.send_keys(product["media_path"])
 
-        # Add a timeout after uploading the media
-        time.sleep(10)  # Wait for 30 seconds to ensure media upload is completed
-
+        # Iterate through the list of media paths and upload each file
+        for media_file in product["media_path"]:
+            file_input.send_keys(media_file)
+            print(f"Uploaded media file: {media_file}")
+            time.sleep(5)  # Wait for 10 seconds between uploads to ensure processing
+        time.sleep(10)
         # Add price
         product_price_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='price']"))
@@ -97,7 +116,7 @@ try:
         save_button.click()
 
         print(f"Product '{product['name']}' added successfully!")
-        time.sleep(3)
+        time.sleep(10)
 
 finally:
     # Close the browser when done (optional)
